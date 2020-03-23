@@ -30,7 +30,7 @@ module.exports = class RoccatVulkan
     const productIds = options.productId ? [options.productId] : consts.PRODUCTIDS;
     const roccatDevices = allDevices.filter(d => productIds.includes(d.productId))
 
-    if(options.onData)
+    if(options.onData || options.onWheel)
     {
       //Register Read Event. Search for Interface 1 and usagePage 10. Why? Know Idea. If this not reacts to your keyboard, try to register to other device
       const keyDevice = roccatDevices.filter(d => d.interface === 1 && d.usagePage === 10)
@@ -40,14 +40,24 @@ module.exports = class RoccatVulkan
         {
           const readDevice = new HID.HID(keyDevice[0].path);
           let key = 0;
-          readDevice.on("data", d => {
+          readDevice.on("data", d => {            
             switch(d[2])
             {
               case 10: key = this.keybuffer.KEYREADBUFFER10[d[3]]; break;
               case 204: key = this.keybuffer.KEYREADBUFFER204[d[3]]; break;
               case 251: key = this.keybuffer.KEYREADBUFFER251[d[3]]; break;
             }
-            options.onData({key: key, state: d[4]})
+
+            if(options.onWheel && (d[2] == 11 || d[2] == 12)){
+              if(d[2] == 11 && d[4] == 1){
+                options.onWheel({type: "volume", state: d[3] == 38 ? -1 : 1})
+              }
+              if(d[2] == 12){
+                options.onWheel({type: "fx", state: d[3], percentage: (d[3]-1) / 68})
+              }
+            }else if(options.onData){
+              options.onData({key: key, state: d[4]})
+            }
           })
         }
         catch(e)
