@@ -129,13 +129,13 @@ module.exports = class RoccatVulkan
     const ctrlDeviceInfos = roccatDevices.filter(e => e['interface'] ===  consts.CTRLINTERFACE);
 
     //Brutforce: Open one by one and look at result.
-    var ctrlDevice = null;
+    this.ctrlDevice = null;
     for(var i in ctrlDeviceInfos)
     {
       try
       {
-        ctrlDevice = new HID.HID(ctrlDeviceInfos[i].path);
-        var buf = ctrlDevice.getFeatureReport(0x0f, 255);
+        this.ctrlDevice = new HID.HID(ctrlDeviceInfos[i].path);
+        var buf = this.ctrlDevice.getFeatureReport(0x0f, 255);
         if(buf.length > 0)
         {
           break;
@@ -148,17 +148,14 @@ module.exports = class RoccatVulkan
       }
     }
 
-    if(!ctrlDevice)
+    if(!this.ctrlDevice)
     {
       raise("Control Device not found!")
     }
 
     // //Start Keyboard initialisation
-    initialization.run(ctrlDevice)
+    initialization.run(this.ctrlDevice)
     .then(() => {
-
-      //Initialisation done. Close Ctrl Device
-      ctrlDevice.close()
       console.log("Roccat Server Ready")
 
       //Callback
@@ -278,11 +275,19 @@ module.exports = class RoccatVulkan
     this.animateTimers.push(timer);
   }
 
+  setMuteBlink(blinking){
+    this.ctrlDevice.sendFeatureReport([0x15, blinking ? 0x01 : 0x00, 0x01]);
+  }
+
   close()
   {
     if(this.ledDevice)
     {
       this.ledDevice.close();
+    }
+    if(this.ctrlDevice)
+    {
+      this.ctrlDevice.close();
     }
   }
 
