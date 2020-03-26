@@ -130,6 +130,7 @@ module.exports.KEYMAPPER = {
 
         "WHEELUP": 250,
         "WHEELDOWN": 251,
+        "MUTE": 226
 }
 
 module.exports.ALPHANUMERIC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];

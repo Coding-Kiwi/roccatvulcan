@@ -66,6 +66,47 @@ module.exports = class RoccatVulkan
           console.log(e)
         }
       }
+
+      //Register Read Event for mute button
+      const mediaDevice = roccatDevices.filter(d => d.interface === 1 && d.usagePage === 12)
+      if(mediaDevice.length > 0)
+      {
+        try
+        {
+          const readDevice = new HID.HID(mediaDevice[0].path);
+          let mute_stack = 0;
+          let mute_down = false;
+          readDevice.on("data", d => {
+            if(d[0] !== 2) return;
+
+            if(d[1] == 226){
+              mute_stack++;
+              mute_down = true;
+              options.onData({key: this.keylist.KEYMAPPER['MUTE'], state: 1});
+            }else if(d[1] == 0){
+              mute_stack--;
+              if(mute_stack == 0 && mute_down){
+                options.onData({key: this.keylist.KEYMAPPER['MUTE'], state: 0});
+                mute_down = false;
+              }
+            }
+
+            if(d[1] == 234){
+              //wheel left
+              mute_stack++;
+            }
+            if(d[1] == 233){
+              //wheel right
+              mute_stack++;
+            }
+          })
+        }
+        catch(e)
+        {
+          console.log("Could not register onData-Event. Keyboard does not react. Change usePage in Code. Sorry")
+          console.log(e)
+        }
+      }
     }
 
     //Find LED Interface Number (No 1)
