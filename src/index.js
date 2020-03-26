@@ -154,7 +154,7 @@ module.exports = class RoccatVulkan
     }
 
     // //Start Keyboard initialisation
-    initialization.run(this.ctrlDevice)
+    initialization.run(this.ctrlDevice, options)
     .then(() => {
       console.log("Roccat Server Ready")
 
